@@ -1,6 +1,4 @@
 const Product = require("../models/product.model");
-const jwt = require("jsonwebtoken");
-const bcrypt = require('bcryptjs');
 const productService = require("../services/product.service");
 
 class ProductController {
@@ -39,7 +37,7 @@ class ProductController {
 
     async getProductById(req, res, next) {
         try {
-            const { id } = req.params.id;
+            const id = req.params.id;
 
             const product = await productService.getProductById(id);
             res.status(200).json({
@@ -84,5 +82,6 @@ class ProductController {
             next(error);
         }
     };
-
 }
+
+module.exports = new ProductController();
