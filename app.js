@@ -5,6 +5,7 @@ const connectDB = require("./db");
 const authRoutes = require("./routes/auth.routes");
 const productRoutes = require("./routes/product.routes");
 const categoryRoutes = require("./routes/category.routes");
+const orderRoutes = require("./routes/order.routes");
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/category",categoryRoutes)
+app.use("/api/orders", orderRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

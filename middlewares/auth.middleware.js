@@ -10,16 +10,18 @@ const authMiddleware = (req, res, next) => {
     const token = authHeader.split(' ')[1];
 
     try {
-        // 2. Token'ı doğrula
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        
-        // 3. Kullanıcı bilgilerini isteğe ekle
         req.user = decoded;
-        
         next();
     } catch (error) {
         return res.status(403).json({ message: "Geçersiz veya süresi dolmuş token!" });
     }
 };
-
-module.exports = authMiddleware;
+const adminMiddleware = (req, res, next) => {
+    if (req.user && req.user.role === 'admin') {
+        next();
+    } else {
+        return res.status(403).json({ message: "Bu işlem için admin yetkisi gerekiyor!" });
+    }
+};
+module.exports = { authMiddleware, adminMiddleware };

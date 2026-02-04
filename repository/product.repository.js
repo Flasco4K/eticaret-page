@@ -20,6 +20,17 @@ class productRepository {
     async delete(id) { // Ürünü ID'sine göre veritabanından siler
         return await Product.findByIdAndDelete(id);
     };
+
+    async updateStock(productId, quantity){
+        return await Product.findByIdAndUpdate(
+            productId, 
+            { 
+                // $inc (increment): Mevcut sayıya ekleme yapar. 
+                $inc: { stok: quantity } 
+            }, 
+            { new: true }
+        );
+    }
 };
 
 module.exports = new productRepository();
