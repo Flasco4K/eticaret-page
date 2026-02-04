@@ -1,19 +1,19 @@
 const User = require("../models/user.model");
 
 class UserRepository {
-    async findByEmail(email) {
-        return await User.findOne({ email })
-    };
-
-    async findById(id) {
-        return await User.findById(id);
-    };
-
-    async create(userData) {
+    async create(userData) { // Yeni bir kullanıcıyı veritabanına kaydeder
         return await User.create(userData);
     };
 
-    async updateVerifyStatus(id, status) {
+    async findByEmail(email) { // Email adresine göre kullanıcıyı bulur
+        return await User.findOne({ email })
+    };
+
+    async findById(id) { // ID üzerinden tek bir kullanıcı getirir
+        return await User.findById(id);
+    };
+
+    async updateVerifyStatus(id, status) { // Kullanıcının email onay durumunu
         return await User.findByIdAndUpdate(id, { isVerified: status }, { new: true });
     };
 };
