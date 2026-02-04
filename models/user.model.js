@@ -22,7 +22,17 @@ const userSchema = new mongoose.Schema({
     },
     isVerified: {
         type: Boolean,
-        default : false //Kayıt Olurken onaylı Değil, Nodemailer ile Onaylanacak
+        default: false //Kayıt Olurken onaylı Değil, Nodemailer ile Onaylanacak
+    },
+    // Nodemailer'dan gelen 6 haneli kodu burada tutacağız
+    verificationCode: {
+        type: String,
+        default: null
+    },
+    // Güvenlik için kodun bir süresi olsun
+    verificationCodeExpires: {
+        type: Date,
+        default: () => Date.now() + 10 * 60 * 1000 // 10 dakika sonra patlar
     }
-});
+}, { timestamps: true }); // Kayıt ve güncelleme tarihlerini otomatik tutar;
 module.exports = mongoose.model("User", userSchema);

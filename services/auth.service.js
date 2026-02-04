@@ -11,10 +11,14 @@ class AuthService {
             throw new Error("Böyle Bir Kullanici Var!")
         };
 
-        const hashedPassword = await bcrypt.hash(userData.password, 10);
-        userData.password = hashedPassword;
+        // 1. Doğrulama kodunu üret
+        const verificationCode = mailService.generateVerificationCode();
+
+        userData.password = await bcrypt.hash(userData.password, 10);
+        userData.verificationCode = verificationCode; // Veritabanına bu kodla gidecek
 
         const newUser = await UserRepository.create(userData);
+        await mailService.sendVerificationEmail(newUser.email, verificationCode);
         return newUser;
     };
 
