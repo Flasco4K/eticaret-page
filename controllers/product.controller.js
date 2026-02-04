@@ -52,4 +52,37 @@ class ProductController {
         }
     };
 
+    async updateProduct(req, res, next) {
+        try {
+
+            const id = req.params.id;
+            const data = req.body;
+
+            const updatedProduct = await productService.updateProduct(id, data);
+            res.status(200).json({
+                success: true,
+                message: "Ürün Başarıyla Güncellendi",
+                data: updatedProduct
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    async deleteProduct(req, res, next) {
+        try {
+
+            const id = req.params.id;
+
+            const deletedProduct = await productService.deleteProduct(id);
+            res.status(200).json({
+                success: true,
+                message: "Ürün Başarıyla Silindi",
+                data: deletedProduct
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
 }

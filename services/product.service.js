@@ -28,6 +28,22 @@ class ProductService {
 
         return product;
     };
+
+    async updateProduct(id,productData){
+        const updatedProduct = await productRepository.update(id,productData);
+        if(!updatedProduct){
+            throw new Error("Güncellenecek Ürün Bulunamadı!");
+        }
+        return updatedProduct
+    };
+
+    async deleteProduct(id){
+        const deletedProduct = await productRepository.delete(id);
+        if(!deletedProduct) {
+            throw new Error("Silinecek Ürün Bulunamadı");
+        }
+        return deletedProduct
+    }; 
 }
 
 module.exports = new ProductService();

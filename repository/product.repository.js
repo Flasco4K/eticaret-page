@@ -13,6 +13,10 @@ class productRepository {
         return await Product.find({ category: categoryId }).populate('category');
     };
 
+    async update(data, id) { // Ürünü ID'sine göre veritabanından günceller
+        return await Product.findByIdAndUpdate(id, data, { new: true });
+    };
+
     async delete(id) { // Ürünü ID'sine göre veritabanından siler
         return await Product.findByIdAndDelete(id);
     };
