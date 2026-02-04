@@ -16,7 +16,6 @@ const authMiddleware = (req, res, next) => {
         // 3. Kullanıcı bilgilerini isteğe ekle
         req.user = decoded;
         
-        // 4. Geçit ver
         next();
     } catch (error) {
         return res.status(403).json({ message: "Geçersiz veya süresi dolmuş token!" });

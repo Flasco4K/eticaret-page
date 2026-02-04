@@ -1,7 +1,7 @@
 const userRepository = require("../repository/user.repository")
+const mailService = require("./mail.service");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-
 
 class AuthService {
     async register(userData) {
@@ -41,7 +41,18 @@ class AuthService {
             { expiresIn: "1h" }
         )
         return { token, user: { username: user.username, email: user.email } };
-    }
-};
+    };
 
+    async verifyEmail(email, code) {
+        const user = await UserRepository.findByEmail(email);
+        if (!user) throw new Error("Kullanıcı Bulunamadı");
+        if (user.verificationCode !== code) throw new Error("Onay Kodu Hatalı")
+
+        user.isVerified = true;
+        user.verificationCode = null; // Mermi hedefe ulaştı, kodu siliyoruz.
+
+        await user.save();
+        return { message: "Hesabınız Onaylandı" };
+    };
+}
 module.exports = new AuthService();
