@@ -1,12 +1,16 @@
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
-    host: 'stmp.gmail.com', //gmail sunucusu
-    port: 465, //SSL için Güvenli Port
-    secure: true, //Port 465 olduğu için true
+    host: 'smtp.gmail.com', // 1. DÜZELTME: 'stmp' değil 'smtp' olmalı
+    port: 465, 
+    secure: true, 
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
+    },
+ 
+    tls: {
+        rejectUnauthorized: false
     }
 });
 
