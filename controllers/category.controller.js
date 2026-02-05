@@ -1,4 +1,3 @@
-const Category = require("../models/category.model");
 const categoryService = require("../services/category.service");
 
 class CategoryController {

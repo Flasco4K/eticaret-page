@@ -10,7 +10,7 @@ class cartRepository {
     };
 
     async update(userId, cartData) {
-        return await Cart.findByIdAndUpdate({ user: userId }, cartData, { new: true });
+        return await Cart.findOneAndUpdate({ user: userId }, cartData, { new: true });
     };
 };
 
