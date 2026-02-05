@@ -1,4 +1,4 @@
-const userRepository = require("../repository/user.repository")
+const UserRepository = require("../repository/user.repository");
 const mailService = require("./mail.service");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -23,7 +23,7 @@ class AuthService {
     };
 
     async login(email, password) {
-        const user = await userRepository.findByEmail(email);
+        const user = await UserRepository.findByEmail(email);
 
         if (!user) {
             throw new Error("Kullanıcı bulunamadı!");

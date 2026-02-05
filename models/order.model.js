@@ -16,7 +16,7 @@ const orderSchema = new mongoose.Schema({
             quantity: { //miktar
                 type: Number, 
                 default: 1, // Kaç adet alındı
-                min: [1, "Miktar 1'den az olamaz kanka!"] 
+                min: [1, "Miktar 1'den az olamaz!"] 
             },
             price: {  //fiyat
                 type: Number, // Sipariş anındaki ürün fiyatı (fiyat değişse de burası sabit kalır)

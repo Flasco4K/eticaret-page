@@ -1,27 +1,22 @@
-const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const bcrypt = require('bcryptjs');
-const authService = require("../services/auth.service");
+const AuthService = require("../services/auth.service");
 
-class AuthService {
+class authController {
     async register(req, res, next) {
         try {
-            const user = await authService.register(req.body);
-
-            res.status(201).json({
-                success: true,
-                message: "Kayıt Başarılı, Mailinizi Kontrol Ediniz",
-                data: user
-            });
-
-        } catch (error) {
-            next(error)
+            const { username, email, password } = req.body;
+            // Servise giderken username eksik gitmemeli
+            const user = await AuthService.register({ username, email, password });
+            res.status(201).json({ success: true, data: user });
+        } catch (err) {
+            res.status(400).json({ message: err.message });
         }
     };
 
     async login(req, res, next) {
         try {
-            const result = await authService.login(req.body.email, req.body.password);
+            const result = await AuthService.login(req.body.email, req.body.password);
 
             res.status(200).json({
                 success: true,
@@ -37,7 +32,7 @@ class AuthService {
     async verify(req, res, next) {
         try {
             const { email, code } = req.body;
-            const result = await authService.verifyEmail(email,code);
+            const result = await AuthService.verifyEmail(email, code);
             res.status(200).json({
                 success: true,
                 message: result.message
@@ -47,4 +42,4 @@ class AuthService {
         }
     };
 }
-module.exports = new AuthService();
+module.exports = new authController();

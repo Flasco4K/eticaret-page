@@ -5,6 +5,10 @@ class orderRepository {
         return await Order.create(orderData);
     };
 
+    async findByUserId(userId) {
+        return await Order.find({ user: userId }).sort({ createdAt: -1 });
+    };
+
     async findByUser(userId) { // Bir kullanıcının geçmiş tüm siparişlerini ürün detaylarıyla birlikte getirir
         return await Order.find({ user: userId }).populate('products.product')
     };

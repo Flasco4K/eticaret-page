@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const dotenv = require("dotenv");
 dotenv.config();
 const connectDB = require("./db");
@@ -12,7 +13,6 @@ const app = express();
 
 // 1. Veritabanı Bağlantısı
 connectDB();
-
 app.use(express.json());
 
 //Rotalar
@@ -21,6 +21,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/category", categoryRoutes)
 app.use("/api/orders", orderRoutes);
 app.use("/api/cart", cartRoutes);
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
