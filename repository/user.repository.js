@@ -1,21 +1,24 @@
 const User = require("../models/user.model");
 
 class UserRepository {
-    async create(userData) { // Yeni bir kullanıcıyı veritabanına kaydeder
-        return await User.create(userData);
-    };
+  findByEmail(email) {
+    return User.findOne({ email });
+  }
 
-    async findByEmail(email) { // Email adresine göre kullanıcıyı bulur
-        return await User.findOne({ email })
-    };
+  findByVerificationCode(code) {
+    return User.findOne({
+      verificationCode: code,
+      verificationCodeExpires: { $gt: Date.now() }
+    });
+  }
 
-    async findById(id) { // ID üzerinden tek bir kullanıcı getirir
-        return await User.findById(id);
-    };
+  create(data) {
+    return User.create(data);
+  }
 
-    async updateVerifyStatus(id, status) { // Kullanıcının email onay durumunu
-        return await User.findByIdAndUpdate(id, { isVerified: status }, { new: true });
-    };
-};
+  updateById(id, data) {
+    return User.findByIdAndUpdate(id, data, { new: true });
+  }
+}
 
 module.exports = new UserRepository();

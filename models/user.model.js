@@ -1,38 +1,61 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema({
-    username: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    email: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    password: {
-        type: String,
-        required: true
-    },
-    role: {
-        type: String,
-        enum: ['customer', 'admin'], //Sadece Bu İki Değerden Biri Olabilir
-        default: 'customer' //Yeni Kayıt olan herkes önce müşteri olarak başlar
-    },
-    isVerified: {
-        type: Boolean,
-        default: false //Kayıt Olurken onaylı Değil, Nodemailer ile Onaylanacak
-    },
-    // Nodemailer'dan gelen 6 haneli kodu burada tutacağız
-    verificationCode: {
-        type: String,
-        default: null
-    },
-    // Güvenlik için kodun bir süresi olsun
-    verificationCodeExpires: {
-        type: Date,
-        default: () => Date.now() + 10 * 60 * 1000 // 10 dakika sonra patlar
-    }
-}, { timestamps: true }); // Kayıt ve güncelleme tarihlerini otomatik tutar;
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    match: /^\S+@\S+\.\S+$/
+  },
+  password: {
+    type: String,
+    required: true,
+    minlength: 6
+  },
+  role: {
+    type: String,
+    enum: ["customer", "admin", "seller"],
+    default: "customer"
+  },
+  status: {
+    type: String,
+    enum: ["active", "pending", "blocked"],
+    default: "pending"
+  },
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
+  verificationCode: String,
+  verificationCodeExpires: Date,
+  resetPasswordToken: String,
+  resetPasswordExpires: Date
+}, { timestamps: true });
+
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
+});
+
+userSchema.methods.comparePassword = function (password) {
+  return bcrypt.compare(password, this.password);
+};
+
+userSchema.set("toJSON", {
+  transform: (_, ret) => {
+    delete ret.password;
+    delete ret.verificationCode;
+    delete ret.__v;
+    return ret;
+  }
+});
 module.exports = mongoose.model("User", userSchema);

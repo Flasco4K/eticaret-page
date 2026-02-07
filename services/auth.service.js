@@ -1,58 +1,71 @@
-const UserRepository = require("../repository/user.repository");
+const userRepo = require("../repository/user.repository");
 const mailService = require("./mail.service");
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 class AuthService {
-    async register(userData) {
-        const existingUser = await UserRepository.findByEmail(userData.email);
+  async register(data) {
+    const exists = await userRepo.findByEmail(data.email);
+    if (exists) throw new Error("Bu e-posta zaten kullanımda");
 
-        if (existingUser) {
-            throw new Error("Böyle Bir Kullanici Var!")
-        };
+    const code = mailService.generateVerificationCode();
 
-        // 1. Doğrulama kodunu üret
-        const verificationCode = mailService.generateVerificationCode();
+    const user = await userRepo.create({
+      ...data,
+      verificationCode: code,
+      verificationCodeExpires: Date.now() + 10 * 60 * 1000
+    });
 
-        userData.password = await bcrypt.hash(userData.password, 10);
-        userData.verificationCode = verificationCode; // Veritabanına bu kodla gidecek
+    // external servis → try-catch OK
+    try {
+      await mailService.sendVerificationEmail(user.email, code);
+    } catch (err) {
+      console.error("Mail gönderilemedi:", err.message);
+    }
 
-        const newUser = await UserRepository.create(userData);
-        await mailService.sendVerificationEmail(newUser.email, verificationCode);
-        return newUser;
-    };
+    return user;
+  }
 
-    async login(email, password) {
-        const user = await UserRepository.findByEmail(email);
+  async login(email, password) {
+    const user = await userRepo.findByEmail(email);
+    if (!user) throw new Error("Geçersiz bilgiler");
 
-        if (!user) {
-            throw new Error("Kullanıcı bulunamadı!");
-        }
+    if (user.status === "blocked")
+      throw new Error("Hesap engellenmiş");
 
-        const isMatch = await bcrypt.compare(password, user.password)
+    if (!user.isVerified)
+      throw new Error("E-posta doğrulanmamış");
 
-        if (!isMatch) {
-            throw new Error("Şifreler Eşleşmiyor");
-        }
+    const match = await user.comparePassword(password);
+    if (!match) throw new Error("Geçersiz bilgiler");
 
-        const token = jwt.sign(
-            { id: user._id, role: user.role },
-            process.env.JWT_SECRET,
-            { expiresIn: "1h" }
-        )
-        return { token, user: { username: user.username, email: user.email } };
-    };
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
 
-    async verifyEmail(email, code) {
-        const user = await UserRepository.findByEmail(email);
-        if (!user) throw new Error("Kullanıcı Bulunamadı");
-        if (user.verificationCode !== code) throw new Error("Onay Kodu Hatalı")
+    return { token, user };
+  }
 
-        user.isVerified = true;
-        user.verificationCode = null; // Mermi hedefe ulaştı, kodu siliyoruz.
+  async verifyEmail(email, code) {
+    const user = await userRepo.findByEmail(email);
+    if (!user) throw new Error("Kullanıcı bulunamadı");
 
-        await user.save();
-        return { message: "Hesabınız Onaylandı" };
-    };
+    if (
+      user.verificationCode !== code ||
+      user.verificationCodeExpires < Date.now()
+    ) {
+      throw new Error("Kod geçersiz veya süresi dolmuş");
+    }
+
+    user.isVerified = true;
+    user.status = "active";
+    user.verificationCode = null;
+    user.verificationCodeExpires = null;
+
+    await user.save();
+    return { message: "Hesap doğrulandı" };
+  }
 }
+
 module.exports = new AuthService();

@@ -2,36 +2,33 @@ const cartRepository = require("../repository/cart.repository");
 
 class CartService {
     async addToCart(userId, productId, quantity) {
-        let cart = await cartRepository.findByUserId(userId); //Müşterinin Elinde Seper Var mı
-
-        if (!cart) { //Eğer Sepet Yoksa
-            const newCartData = { //Boş Bir Sepet Oluşturuyoruz
-                user: userId,
-                products: [{ product: productId, quantity: quantity }] //İçine Müşterinin istediği İlk Ürünü ve Adedini Koyuyoruz
-            };
-            return await cartRepository.create(newCartData);
+        const result = await Cart.findOneAndUpdate(
+            { user: userId, "products.product": productId },
+            { $inc: { "products.$.quantity": quantity } },
+            { new: true }
+        );
+        if (!result) { 
+            return await Cart.findOneAndUpdate(
+                { user: userId },
+                { $push: { products: { product: productId, quantity: quantity } } },
+                { upsert: true, new: true }
+            );
         }
-        // Ürün Zaten Var mı ?
-        const itemIndex = cart.products.findIndex(p => p.product.toString() === productId.toString());
-
-        if (itemIndex > -1) {
-            cart.products[itemIndex].quantity += quantity;
-        } else {
-            cart.products.push({ product: productId, quantity: quantity });
-        }
-        return await cartRepository.update(userId, cart);
+        return result;
     };
 
     async removeFromCart(userId, productId) {
-        const cart = await cartRepository.findByUserId(userId);
+        const updatedCart = await Cart.findOneAndUpdate(
+            { user: userId },
+            { $pull: { products: { product: productId } } },
+            { new: true }
+        );
 
-        if (!cart) {
+        if (!updatedCart) {
             throw new Error("Sepet Bulunamadı!");
         }
-
-        cart.products = cart.products.filter(p => p.product.toString() !== productId.toString()); //Ürünün ID'si, silmek istediğim ID'ye EŞİT OLMAYANLARI tut.
-        return await cartRepository.update(userId, cart);
-    };
+        return updatedCart;
+    }
 
     async getCart(userId) {
         const cart = await cartRepository.findByUserId(userId);

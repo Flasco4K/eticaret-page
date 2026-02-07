@@ -25,7 +25,7 @@ class productRepository {
         return await Product.findByIdAndUpdate(
             productId, 
             { 
-                // $inc (increment): Mevcut sayıya ekleme yapar. 
+                
                 $inc: { stok: quantity } 
             }, 
             { new: true }
