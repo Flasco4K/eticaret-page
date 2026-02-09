@@ -5,7 +5,7 @@ class orderRepository {
         return await Order.create(orderData);
     };
 
-    async findByUserId(userId) {
+    async findOrdersByUserId(userId) {
         return await Order.find({ user: userId }).sort({ createdAt: -1 });
     };
 
@@ -14,11 +14,11 @@ class orderRepository {
     };
 
     async findById(orderId) { // Tek bir siparişi ID ile tüm detaylarıyla getirir
-        return await Order.findById(orderId).populate('user', 'name email').populate('products.product');
+        return await Order.findById(orderId).populate('User', 'username email').populate('products.product');
     };
 
     async findAll() { // Tüm siparişleri listeler (Admin paneli için)
-        return await Order.find().populate('user', 'name email').sort({ createdAt: -1 });
+        return await Order.find().populate('User', 'username email').sort({ createdAt: -1 });
     };
 
     async updateStatus(orderId, status) { // Siparişin durumunu günceller ve yeni veriyi geri döner

@@ -1,6 +1,6 @@
 const Product = require("../models/product.model");
 
-class productRepository {
+class ProductRepository {
     async create(data) { // Yeni bir ürünü sisteme ekler
         return await Product.create(data);
     };
@@ -9,8 +9,12 @@ class productRepository {
         return await Product.find().populate('category');
     };
 
-    async findByCategory(categoryId) { // Sadece belirli bir kategoriye ait ürünleri listeler
-        return await Product.find({ category: categoryId }).populate('category');
+    async findByCategory(categoryId) {
+        return await Product.find({ category: categoryId }).populate('Category');
+    };
+
+    async findByDescription(description) {
+        return await Product.find({ $text: { $search: description }}).populate('Category');
     };
 
     async update(data, id) { // Ürünü ID'sine göre veritabanından günceller
@@ -21,16 +25,16 @@ class productRepository {
         return await Product.findByIdAndDelete(id);
     };
 
-    async updateStock(productId, quantity){
+    async updateStock(productId, quantity) {
         return await Product.findByIdAndUpdate(
-            productId, 
-            { 
-                
-                $inc: { stok: quantity } 
-            }, 
+            productId,
+            {
+
+                $inc: { stok: quantity }
+            },
             { new: true }
         );
     }
 };
 
-module.exports = new productRepository();
+module.exports = new ProductRepository();
