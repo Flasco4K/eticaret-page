@@ -1,11 +1,11 @@
 const Product = require("../models/product.model");
 
 class ProductRepository {
-    async create(data) { // Yeni bir ürünü sisteme ekler
+    async create(data) {
         return await Product.create(data);
     };
 
-    async findAll() { // Tüm ürünleri getirir (Kategori bilgilerini de içine doldurur)
+    async findAll() { 
         return await Product.find().populate('category');
     };
 
@@ -17,11 +17,11 @@ class ProductRepository {
         return await Product.find({ $text: { $search: description }}).populate('Category');
     };
 
-    async update(data, id) { // Ürünü ID'sine göre veritabanından günceller
+    async update(data, id) { 
         return await Product.findByIdAndUpdate(id, data, { new: true });
     };
 
-    async delete(id) { // Ürünü ID'sine göre veritabanından siler
+    async delete(id) { 
         return await Product.findByIdAndDelete(id);
     };
 
